@@ -30,7 +30,7 @@ Set upload limit
 Use external preview generator
 
 ```shell script
-./wfs-ls -preview http://localhost:3201 path-to-web-root
+./wfs-ls -preview http://localhost:3201/preview path-to-web-root
 ```
 
 ### Other ways of configuration
