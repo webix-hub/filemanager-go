@@ -1,4 +1,4 @@
-Backed for Webix File Manager
+Golang Backend for Webix File Manager
 ==================
 
 ### How to build
