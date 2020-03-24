@@ -53,7 +53,7 @@ func main() {
 	flag.StringVar(&Config.Preview, "preview", "", "url of preview generation service")
 	flag.BoolVar(&Config.Readonly, "readonly", false, "readonly mode")
 	flag.Int64Var(&Config.UploadLimit, "limit", 10_000_000, "max file size to upload")
-	flag.StringVar(&Config.Port, "port", "3200", "port for web server")
+	flag.StringVar(&Config.Port, "port", ":3200", "port for web server")
 	flag.Parse()
 
 	args := flag.Args()
@@ -396,7 +396,7 @@ func main() {
 	r.Get("/meta", getMetaInfo)
 
 	log.Printf("Starting webserver at port " + Config.Port)
-	http.ListenAndServe(":"+Config.Port, r)
+	http.ListenAndServe(Config.Port, r)
 }
 
 type walkFunc func(exif.FieldName, *tiff.Tag) error
