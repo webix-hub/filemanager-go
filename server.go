@@ -40,7 +40,7 @@ var features = FSFeatures{
 }
 
 type AppConfig struct {
-	Root        string
+	DataFolder  string
 	Port        string
 	Preview     string
 	UploadLimit int64
@@ -58,7 +58,7 @@ func main() {
 
 	args := flag.Args()
 	if len(args) > 0 {
-		Config.Root = args[0]
+		Config.DataFolder = args[0]
 	}
 
 	configor.New(&configor.Config{ENVPrefix: "APP", Silent: true}).Load(&Config, "config.yml")
@@ -75,13 +75,13 @@ func main() {
 	// common drive access
 	var err error
 	driveConfig := wfs.DriveConfig{Verbose: true}
-	driveConfig.Operation = &wfs.OperationConfig{PreventNameCollision:true}
+	driveConfig.Operation = &wfs.OperationConfig{PreventNameCollision: true}
 	if Config.Readonly {
 		temp := wfs.Policy(&wfs.ReadOnlyPolicy{})
 		driveConfig.Policy = &temp
 	}
 
-	drive, err = local.NewLocalDrive(Config.Root, &driveConfig)
+	drive, err = local.NewLocalDrive(Config.DataFolder, &driveConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -255,13 +255,13 @@ func main() {
 		fileID, err := drive.Make(base, handler.Filename, false)
 		if err != nil {
 			format.Text(w, 500, "Access Denied")
-			return;
+			return
 		}
 
 		err = drive.Write(fileID, file)
 		if err != nil {
 			format.Text(w, 500, "Access Denied")
-			return;
+			return
 		}
 
 		info, err := drive.Info(fileID)

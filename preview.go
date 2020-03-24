@@ -67,9 +67,9 @@ func getFilePreview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	source := filepath.Join(Config.Root, id)
+	source := filepath.Join(Config.DataFolder, id)
 	name := filepath.Base(source)
-	folder := filepath.Join(Config.Root, id[:len(id)-len(name)], ".preview")
+	folder := filepath.Join(Config.DataFolder, id[:len(id)-len(name)], ".preview")
 	preview := filepath.Join(folder, name+"___"+widthStr+"x"+heightStr)
 
 	// check previously generated preview
