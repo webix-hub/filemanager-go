@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"path/filepath"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -252,7 +253,7 @@ func main() {
 		defer file.Close()
 
 		base := r.URL.Query().Get("id")
-		fileID, err := drive.Make(base, handler.Filename, false)
+		fileID, err := drive.Make(base, filepath.Base(handler.Filename), false)
 		if err != nil {
 			format.Text(w, 500, "Access Denied")
 			return
