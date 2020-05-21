@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"path/filepath"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -76,7 +75,7 @@ func main() {
 	// common drive access
 	var err error
 	driveConfig := wfs.DriveConfig{Verbose: true}
-	driveConfig.Operation = &wfs.OperationConfig{PreventNameCollision:true}
+	driveConfig.Operation = &wfs.OperationConfig{PreventNameCollision: true}
 	if Config.Readonly {
 		temp := wfs.Policy(&wfs.ReadOnlyPolicy{})
 		driveConfig.Policy = &temp
@@ -253,16 +252,33 @@ func main() {
 		defer file.Close()
 
 		base := r.URL.Query().Get("id")
-		fileID, err := drive.Make(base, filepath.Base(handler.Filename), false)
+
+		parts := strings.Split(handler.Filename, "/")
+		if len(parts) > 1 {
+			for _, p := range parts[:len(parts)-1] {
+				if !drive.Exists(base + "/" + p) {
+					id, err := drive.Make(base, p, true)
+					if err != nil {
+						format.JSON(w, 500, Response{Invalid: true, Error: err.Error()})
+						return
+					}
+					base = id
+				} else {
+					base = base + "/" + p
+				}
+			}
+		}
+
+		fileID, err := drive.Make(base, parts[len(parts)-1], false)
 		if err != nil {
 			format.Text(w, 500, "Access Denied")
-			return;
+			return
 		}
 
 		err = drive.Write(fileID, file)
 		if err != nil {
 			format.Text(w, 500, "Access Denied")
-			return;
+			return
 		}
 
 		info, err := drive.Info(fileID)
