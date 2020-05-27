@@ -156,7 +156,13 @@ func main() {
 	})
 
 	r.Get("/folders", func(w http.ResponseWriter, r *http.Request) {
-		data, err := drive.List("/", &wfs.ListConfig{
+		r.ParseForm()
+		id := r.Form.Get("id")
+		if id == "" {
+			id = "/"
+		}
+
+		data, err := drive.List(id, &wfs.ListConfig{
 			Nested:     true,
 			SubFolders: true,
 			SkipFiles:  true,
