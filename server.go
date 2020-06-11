@@ -156,8 +156,7 @@ func main() {
 	})
 
 	r.Get("/folders", func(w http.ResponseWriter, r *http.Request) {
-		r.ParseForm()
-		id := r.Form.Get("id")
+		id := r.URL.Query().Get("id")
 		if id == "" {
 			id = "/"
 		}
