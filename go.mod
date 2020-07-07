@@ -2,8 +2,6 @@ module wfs-ls
 
 go 1.13
 
-replace github.com/xbsoftware/wfs => ../wfs
-
 require (
 	github.com/dhowden/tag v0.0.0-20191122115059-7e5c04feccd8
 	github.com/disintegration/imaging v1.6.2
