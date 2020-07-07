@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 	"time"
-	"path/filepath"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -157,7 +156,12 @@ func main() {
 	})
 
 	r.Get("/folders", func(w http.ResponseWriter, r *http.Request) {
-		data, err := drive.List("/", &wfs.ListConfig{
+		id := r.URL.Query().Get("id")
+		if id == "" {
+			id = "/"
+		}
+
+		data, err := drive.List(id, &wfs.ListConfig{
 			Nested:     true,
 			SubFolders: true,
 			SkipFiles:  true,
@@ -253,7 +257,24 @@ func main() {
 		defer file.Close()
 
 		base := r.URL.Query().Get("id")
-		fileID, err := drive.Make(base, filepath.Base(handler.Filename), false)
+
+		parts := strings.Split(handler.Filename, "/")
+		if len(parts) > 1 {
+			for _, p := range parts[:len(parts)-1] {
+				if !drive.Exists(base + "/" + p) {
+					id, err := drive.Make(base, p, true)
+					if err != nil {
+						format.JSON(w, 500, Response{Invalid: true, Error: err.Error()})
+						return
+					}
+					base = id
+				} else {
+					base = base + "/" + p
+				}
+			}
+		}
+
+		fileID, err := drive.Make(base, parts[len(parts)-1], false)
 		if err != nil {
 			format.Text(w, 500, "Access Denied")
 			return

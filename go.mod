@@ -10,6 +10,6 @@ require (
 	github.com/jinzhu/configor v1.1.1
 	github.com/rwcarlsen/goexif v0.0.0-20190401172101-9e8deecbddbd
 	github.com/unrolled/render v1.0.2
-	github.com/xbsoftware/wfs v0.0.0-20200225154622-fe508a916a08
-	github.com/xbsoftware/wfs-local v0.0.0-20200225155528-1373c5520e98
+	github.com/xbsoftware/wfs v0.0.0-20200415084329-015f0517f791
+	github.com/xbsoftware/wfs-local v0.0.0-20200415083253-3d2b31dddc56
 )
