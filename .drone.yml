@@ -21,7 +21,7 @@ steps:
     registry: registry.webix.io
 
 - name: deploy
-  image: registry.webix.io/js-build-env
+  image: registry.webix.io/js-build-env:node-14
   environment:
     RESTART_HOOK_TOKEN:
       from_secret: restart_hook_token
