@@ -45,6 +45,7 @@ type AppConfig struct {
 	Preview     string
 	UploadLimit int64
 	Readonly    bool
+	CORS        string
 }
 
 var Config AppConfig
@@ -90,14 +91,16 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	cors := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
-		AllowCredentials: true,
-		MaxAge:           300,
-	})
-	r.Use(cors.Handler)
+	if Config.CORS != "" {
+		cors := cors.New(cors.Options{
+			AllowedOrigins:   []string{Config.CORS},
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+			AllowCredentials: true,
+			MaxAge:           300,
+		})
+		r.Use(cors.Handler)
+	}
 
 	r.Get("/icons/{size}/{type}/{name}", func(w http.ResponseWriter, r *http.Request) {
 		size := chi.URLParam(r, "size")

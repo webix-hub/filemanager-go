@@ -181,7 +181,10 @@ func getExternalPreview(file io.ReadSeeker, preview, name, width, height string)
 		return "", fmt.Errorf("preview service %w", err)
 	}
 	if res.StatusCode != 200 {
-		return "", fmt.Errorf("preview service %d", res.StatusCode)
+		bodyBytes, _ := ioutil.ReadAll(res.Body)
+		res.Body.Close()
+		return "", fmt.Errorf("preview service %d, %s", res.StatusCode, string(bodyBytes))
+
 	}
 	ext := ".jpg"
 	if res.Header.Get("Content-type") == "image/png" {
