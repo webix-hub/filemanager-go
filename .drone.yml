@@ -4,7 +4,7 @@ name: default
 steps:
 
 - name: backend
-  image: golang:1.13
+  image: golang:1.17
   environment:
     GOPROXY: https://goproxy.webix.io
   commands:
