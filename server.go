@@ -250,7 +250,7 @@ func main() {
 		r.Body = http.MaxBytesReader(w, r.Body, Config.UploadLimit)
 		r.ParseMultipartForm(limit)
 
-		file, handler, err := r.FormFile("upload")
+		file, _, err := r.FormFile("upload")
 		if err != nil {
 			panic("Error Retrieving the File")
 		}
@@ -258,7 +258,8 @@ func main() {
 
 		base := r.URL.Query().Get("id")
 
-		parts := strings.Split(handler.Filename, "/")
+		filename := r.Form.Get("upload_fullpath")
+		parts := strings.Split(filename, "/")
 		if len(parts) > 1 {
 			for _, p := range parts[:len(parts)-1] {
 				if !drive.Exists(base + "/" + p) {
@@ -287,6 +288,10 @@ func main() {
 		}
 
 		info, err := drive.Info(fileID)
+		if err != nil {
+			format.Text(w, 500, "Access Denied")
+			return
+		}
 		format.JSON(w, 200, info)
 	})
 
