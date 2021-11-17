@@ -250,7 +250,7 @@ func main() {
 		r.Body = http.MaxBytesReader(w, r.Body, Config.UploadLimit)
 		r.ParseMultipartForm(limit)
 
-		file, _, err := r.FormFile("upload")
+		file, handler, err := r.FormFile("upload")
 		if err != nil {
 			panic("Error Retrieving the File")
 		}
@@ -259,6 +259,10 @@ func main() {
 		base := r.URL.Query().Get("id")
 
 		filename := r.Form.Get("upload_fullpath")
+		if filename == "" {
+			filename = handler.Filename
+		}
+
 		parts := strings.Split(filename, "/")
 		if len(parts) > 1 {
 			for _, p := range parts[:len(parts)-1] {
