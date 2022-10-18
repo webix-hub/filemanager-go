@@ -99,12 +99,13 @@ func main() {
 	})
 	r.Use(cors.Handler)
 
-	r.Get("/icons/{size}/{type}/{name}", func(w http.ResponseWriter, r *http.Request) {
+	r.Get("/icons/{skin}/{size}/{type}/{name}", func(w http.ResponseWriter, r *http.Request) {
+		skin := chi.URLParam(r, "skin")
 		size := chi.URLParam(r, "size")
 		name := chi.URLParam(r, "name")
 		ftype := chi.URLParam(r, "type")
 
-		http.ServeFile(w, r, getIconURL(size, ftype, name))
+		http.ServeFile(w, r, getIconURL(size, ftype, name, skin))
 	})
 
 	r.Get("/preview", getFilePreview)
