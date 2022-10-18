@@ -31,7 +31,7 @@ func getIconURL(size, ftype, name, skin string) string {
 	}
 
 	name = "icons/" + size + "/types/" + skin + "/"+ ftype + filepath.Ext(name)
-	_, err := os.Stat(name)
+	_, err = os.Stat(name)
 	if !os.IsNotExist(err) {
 		return name;
 	}
