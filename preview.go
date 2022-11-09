@@ -23,20 +23,23 @@ func getIconURL(size, ftype, name, skin string) string {
 	size = re.ReplaceAllString(size, "")
 	skin = re.ReplaceAllString(skin, "")
 	ftype = re.ReplaceAllString(ftype, "")
+	name = re.ReplaceAllString(name, "")
 
-	name = "icons/" + size + "/" + re.ReplaceAllString(name, "")
-	_, err := os.Stat(name)
+	test := "icons/default/" + size + "/" + name
+	_, err := os.Stat(test)
 	if !os.IsNotExist(err) {
-		return name;
+		return test
 	}
 
-	name = "icons/" + size + "/types/" + skin + "/"+ ftype + filepath.Ext(name)
-	_, err = os.Stat(name)
-	if !os.IsNotExist(err) {
-		return name;
+	if skin != "" {
+		test = "icons/" + skin + "/" + size + "/types/" + ftype + filepath.Ext(name)
+		_, err = os.Stat(test)
+		if !os.IsNotExist(err) {
+			return test
+		}
 	}
 
-	return "icons/" + size + "/types/" + ftype + filepath.Ext(name)
+	return "icons/default/" + size + "/types/" + ftype + filepath.Ext(name)
 }
 
 func serveIconPreview(w http.ResponseWriter, r *http.Request, info wfs.File) {
