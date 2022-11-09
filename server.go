@@ -107,7 +107,16 @@ func main() {
 		name := chi.URLParam(r, "name")
 		ftype := chi.URLParam(r, "type")
 
-		http.ServeFile(w, r, getIconURL(size, ftype, name))
+		http.ServeFile(w, r, getIconURL(size, ftype, name, ""))
+	})
+
+	r.Get("/icons/{skin}/{size}/{type}/{name}", func(w http.ResponseWriter, r *http.Request) {
+		skin := chi.URLParam(r, "skin")
+		size := chi.URLParam(r, "size")
+		name := chi.URLParam(r, "name")
+		ftype := chi.URLParam(r, "type")
+
+		http.ServeFile(w, r, getIconURL(size, ftype, name, skin))
 	})
 
 	r.Get("/preview", getFilePreview)
@@ -261,7 +270,12 @@ func main() {
 
 		base := r.URL.Query().Get("id")
 
-		parts := strings.Split(handler.Filename, "/")
+		filename := r.Form.Get("upload_fullpath")
+		if filename == "" {
+			filename = handler.Filename
+		}
+
+		parts := strings.Split(filename, "/")
 		if len(parts) > 1 {
 			for _, p := range parts[:len(parts)-1] {
 				if !drive.Exists(base + "/" + p) {
@@ -290,6 +304,10 @@ func main() {
 		}
 
 		info, err := drive.Info(fileID)
+		if err != nil {
+			format.Text(w, 500, "Access Denied")
+			return
+		}
 		format.JSON(w, 200, info)
 	})
 
