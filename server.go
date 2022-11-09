@@ -40,7 +40,7 @@ var features = FSFeatures{
 }
 
 type AppConfig struct {
-	Root        string
+	DataFolder  string
 	Port        string
 	Preview     string
 	UploadLimit int64
@@ -53,12 +53,12 @@ func main() {
 	flag.StringVar(&Config.Preview, "preview", "", "url of preview generation service")
 	flag.BoolVar(&Config.Readonly, "readonly", false, "readonly mode")
 	flag.Int64Var(&Config.UploadLimit, "limit", 10_000_000, "max file size to upload")
-	flag.StringVar(&Config.Port, "port", "3200", "port for web server")
+	flag.StringVar(&Config.Port, "port", ":3200", "port for web server")
 	flag.Parse()
 
 	args := flag.Args()
 	if len(args) > 0 {
-		Config.Root = args[0]
+		Config.DataFolder = args[0]
 	}
 
 	configor.New(&configor.Config{ENVPrefix: "APP", Silent: true}).Load(&Config, "config.yml")
@@ -81,7 +81,7 @@ func main() {
 		driveConfig.Policy = &temp
 	}
 
-	drive, err = local.NewLocalDrive(Config.Root, &driveConfig)
+	drive, err = local.NewLocalDrive(Config.DataFolder, &driveConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -104,7 +104,16 @@ func main() {
 		name := chi.URLParam(r, "name")
 		ftype := chi.URLParam(r, "type")
 
-		http.ServeFile(w, r, getIconURL(size, ftype, name))
+		http.ServeFile(w, r, getIconURL(size, ftype, name, ""))
+	})
+
+	r.Get("/icons/{skin}/{size}/{type}/{name}", func(w http.ResponseWriter, r *http.Request) {
+		skin := chi.URLParam(r, "skin")
+		size := chi.URLParam(r, "size")
+		name := chi.URLParam(r, "name")
+		ftype := chi.URLParam(r, "type")
+
+		http.ServeFile(w, r, getIconURL(size, ftype, name, skin))
 	})
 
 	r.Get("/preview", getFilePreview)
@@ -427,7 +436,7 @@ func main() {
 	r.Get("/meta", getMetaInfo)
 
 	log.Printf("Starting webserver at port " + Config.Port)
-	http.ListenAndServe(":"+Config.Port, r)
+	http.ListenAndServe(Config.Port, r)
 }
 
 type walkFunc func(exif.FieldName, *tiff.Tag) error

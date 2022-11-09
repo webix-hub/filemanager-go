@@ -1,0 +1,34 @@
+kind: pipeline
+name: default
+
+steps:
+
+- name: backend
+  image: golang:1.17
+  environment:
+    GOPROXY: https://goproxy.webix.io
+  commands:
+    - CGO_ENABLED=0 GOARCH=386 go build .
+
+- name: docker
+  image: plugins/docker
+  settings:
+    username: drone
+    password:
+      from_secret: docker_password
+    repo: registry.webix.io/${DRONE_REPO_NAME}
+    tags: "${DRONE_BRANCH}"
+    registry: registry.webix.io
+
+- name: deploy
+  image: registry.webix.io/js-build-env:node-14
+  environment:
+    RESTART_HOOK_TOKEN:
+      from_secret: restart_hook_token
+  commands:
+    - curl -s "https://hook.webix.io/dev-docker?token=$${RESTART_HOOK_TOKEN}&project=$${DRONE_REPO}&branch=${DRONE_BRANCH}"
+
+trigger:
+  branch:
+    exclude:
+      - temp/*

@@ -17,23 +17,33 @@ import (
 	"github.com/xbsoftware/wfs"
 )
 
-func getIconURL(size, ftype, name string) string {
+func getIconURL(size, ftype, name, skin string) string {
 	var re = regexp.MustCompile(`[^A-Za-z0-9.]`)
 
 	size = re.ReplaceAllString(size, "")
-	name = "icons/" + size + "/" + re.ReplaceAllString(name, "")
-	ftype = "icons/" + size + "/types/" + re.ReplaceAllString(ftype, "")
+	skin = re.ReplaceAllString(skin, "")
+	ftype = re.ReplaceAllString(ftype, "")
+	name = re.ReplaceAllString(name, "")
 
-	_, err := os.Stat(name)
-	if os.IsNotExist(err) {
-		name = ftype + filepath.Ext(name)
+	test := "icons/default/" + size + "/" + name
+	_, err := os.Stat(test)
+	if !os.IsNotExist(err) {
+		return test
 	}
 
-	return name
+	if skin != "" {
+		test = "icons/" + skin + "/" + size + "/types/" + ftype + filepath.Ext(name)
+		_, err = os.Stat(test)
+		if !os.IsNotExist(err) {
+			return test
+		}
+	}
+
+	return "icons/default/" + size + "/types/" + ftype + filepath.Ext(name)
 }
 
 func serveIconPreview(w http.ResponseWriter, r *http.Request, info wfs.File) {
-	http.ServeFile(w, r, getIconURL("big", info.Type, filepath.Ext(info.Name)[1:]+".svg"))
+	http.ServeFile(w, r, getIconURL("big", info.Type, filepath.Ext(info.Name)[1:]+".svg", "none"))
 }
 
 func getFilePreview(w http.ResponseWriter, r *http.Request) {
@@ -67,9 +77,9 @@ func getFilePreview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	source := filepath.Join(Config.Root, id)
+	source := filepath.Join(Config.DataFolder, id)
 	name := filepath.Base(source)
-	folder := filepath.Join(Config.Root, id[:len(id)-len(name)], ".preview")
+	folder := filepath.Join(Config.DataFolder, id[:len(id)-len(name)], ".preview")
 	preview := filepath.Join(folder, name+"___"+widthStr+"x"+heightStr)
 
 	// check previously generated preview
